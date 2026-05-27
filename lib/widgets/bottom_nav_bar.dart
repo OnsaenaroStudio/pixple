@@ -1,0 +1,95 @@
+import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
+
+enum NavTab { allergy, recipe, leftover, community }
+
+class BottomNavBar extends StatelessWidget {
+  final NavTab currentTab;
+  final ValueChanged<NavTab> onTabSelected;
+
+  const BottomNavBar({
+    super.key,
+    required this.currentTab,
+    required this.onTabSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      height: 66,
+      decoration: BoxDecoration(
+        color: AppColors.navBackground,
+        borderRadius: BorderRadius.circular(33),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _NavButton(
+            icon: Icons.eco,
+            label: '알레르기',
+            isActive: currentTab == NavTab.allergy,
+            onTap: () => onTabSelected(NavTab.allergy),
+          ),
+          _NavButton(
+            icon: Icons.menu_book,
+            label: '레시피',
+            isActive: currentTab == NavTab.recipe,
+            onTap: () => onTabSelected(NavTab.recipe),
+          ),
+          _NavButton(
+            icon: Icons.delete_outline,
+            label: '남은 음식',
+            isActive: currentTab == NavTab.leftover,
+            onTap: () => onTabSelected(NavTab.leftover),
+          ),
+          _NavButton(
+            icon: Icons.chat_bubble_outline,
+            label: '커뮤',
+            isActive: currentTab == NavTab.community,
+            onTap: () => onTabSelected(NavTab.community),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NavButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _NavButton({
+    required this.icon,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isActive ? AppColors.navIconActive : AppColors.navIconInactive;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isActive ? AppColors.cardBackground : Colors.transparent,
+        ),
+        child: Icon(icon, color: color, size: 24),
+      ),
+    );
+  }
+}
