@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pixple"
+    namespace = "io.github.onsaenarostudio.pixple"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
