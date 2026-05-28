@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^2.5.1
   google_fonts: ^6.2.1
+  http: ^1.6.0
+  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:
