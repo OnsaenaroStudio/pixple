@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:pixple/utils/Prompts.dart';
 
 class AllergyApiResult {
   final List<int> allergens;
@@ -12,8 +13,6 @@ class AllergyApi {
   static const _endpoint =
       'https://pixple-backend.vercel.app/api/gemini-api';
 
-  static const _prompt = '(prompt)';
-
   static Future<AllergyApiResult> detect(File imageFile) async {
     final bytes = await imageFile.readAsBytes();
     final b64 = base64Encode(bytes);
@@ -24,7 +23,7 @@ class AllergyApi {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'img': 'data:$mime;base64,$b64',
-        'prompt': _prompt,
+        'prompt': prompt,
       }),
     );
 

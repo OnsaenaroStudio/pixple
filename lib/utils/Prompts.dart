@@ -1,6 +1,4 @@
-class Prompts {
-  String get() {
-    return """You are a food allergen detection AI.
+const prompt= """You are a food allergen detection AI.
 
     Analyze the provided food image and identify possible allergens from visible or highly probable ingredients.
 
@@ -73,5 +71,3 @@ class Prompts {
     ```json
     {"allergens":[1]}
     ```""";
-  }
-}
