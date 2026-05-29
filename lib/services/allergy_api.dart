@@ -1,12 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:pixple/utils/Prompts.dart';
 
 class AllergyApiResult {
-  final List<int> allergens;
+  final List<String> allergens;
   final bool cached;
-  AllergyApiResult({required this.allergens, required this.cached});
+
+  AllergyApiResult({
+    required this.allergens,
+    required this.cached,
+  });
 }
 
 class AllergyApi {
@@ -28,16 +33,23 @@ class AllergyApi {
     );
 
     if (res.statusCode != 200) {
-      throw Exception('API 오류: HTTP ${res.statusCode} - ${res.body}');
+      throw Exception('API 오류: HTTP ${res.statusCode}');
     }
 
-    final json = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    final json = jsonDecode(
+      utf8.decode(res.bodyBytes),
+    ) as Map<String, dynamic>;
+
     if (json['code'] != 200) {
       throw Exception('응답 오류: code=${json['code']}');
     }
 
     final data = json['data'] as Map<String, dynamic>;
-    final list = (data['allergens'] as List).map((e) => e as int).toList();
+
+    final list = (data['allergens'] as List)
+        .map((e) => e.toString())
+        .toList();
+
     return AllergyApiResult(
       allergens: list,
       cached: json['cached'] == true,
@@ -46,8 +58,15 @@ class AllergyApi {
 
   static String _guessMime(String path) {
     final p = path.toLowerCase();
-    if (p.endsWith('.jpg') || p.endsWith('.jpeg')) return 'image/jpeg';
-    if (p.endsWith('.webp')) return 'image/webp';
+
+    if (p.endsWith('.jpg') || p.endsWith('.jpeg')) {
+      return 'image/jpeg';
+    }
+
+    if (p.endsWith('.webp')) {
+      return 'image/webp';
+    }
+
     return 'image/png';
   }
 }

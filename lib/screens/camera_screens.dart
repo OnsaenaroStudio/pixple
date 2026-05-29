@@ -40,8 +40,7 @@ class _AllergyScreenState extends State<AllergyScreen> {
       final result = await AllergyApi.detect(File(picked.path));
       if (!mounted) return;
 
-      final names =
-      result.allergens.map(allergenName).toList(growable: false);
+      final names = result.allergens.map(allergenName).toList(growable: false);
 
       Navigator.push(
         context,
@@ -86,14 +85,12 @@ class _AllergyScreenState extends State<AllergyScreen> {
 
 class AllergyResultScreen extends StatelessWidget {
   final String imagePath;
-  final List<int> allergenCodes;
   final List<String> allergenNames;
   final bool cached;
 
   const AllergyResultScreen({
     super.key,
     required this.imagePath,
-    required this.allergenCodes,
     required this.allergenNames,
     required this.cached,
   });
@@ -101,39 +98,85 @@ class AllergyResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('알레르기 검사 결과')),
+      appBar: AppBar( title: const Text('알레르기 검사 결과'),),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.file(File(imagePath), height: 220, fit: BoxFit.cover),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                allergenNames.isEmpty
-                    ? '검출된 항원이 없습니다 ✅'
-                    : '검출된 항원 (${allergenNames.length}건)',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: allergenNames.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (_, i) => ListTile(
-                    leading: CircleAvatar(child: Text('${allergenCodes[i]}')),
-                    title: Text(allergenNames[i]),
-                  ),
+                borderRadius: BorderRadius.circular(16),
+                child: Image.file(
+                  File(imagePath),
+                  width: double.infinity,
+                  height: 260,
+                  fit: BoxFit.cover,
                 ),
               ),
+
+              const SizedBox(height: 24),
+
+              const Text(
+                '알레르기 검사 성분',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              if (allergenNames.isEmpty) {
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.green.withOpacity(0.1),
+                  ),
+                  child: const Text(
+                    '검출된 알레르기 성분이 없습니다 ✅',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                )
+              } else {
+                Column(
+                  children: allergenNames.map((name) {
+                    return Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.red.withOpacity(0.08),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.warning_amber_rounded,),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(name,style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w600,),),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                )
+              },
+
               if (cached)
                 const Padding(
                   padding: EdgeInsets.only(top: 8),
-                  child: Text('※ 캐시된 응답', style: TextStyle(color: Colors.grey)),
+                  child: Text(
+                    '※ 캐시된 응답',
+                    style: TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
                 ),
             ],
           ),
