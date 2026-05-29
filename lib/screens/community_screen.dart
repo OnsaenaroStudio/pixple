@@ -210,57 +210,60 @@ class _PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
       onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (article.hashtags.isNotEmpty)
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: article.hashtags
-                  .map((t) => Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.photoButton,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '#$t',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
-                        ),
-                      ))
-                  .toList(),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (article.hashtags.isNotEmpty)
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: article.hashtags
+                    .map((t) => Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.photoButton,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '#$t',
+                            style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                          ),
+                        ))
+                    .toList(),
+              ),
+            if (article.hashtags.isNotEmpty) const SizedBox(height: 10),
+            Text(
+              article.title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
             ),
-          if (article.hashtags.isNotEmpty) const SizedBox(height: 10),
-          Text(
-            article.title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+            const SizedBox(height: 8),
+            Text(
+              article.content,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            article.content,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            _dateText(article.createdAt),
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-        ],
+            const SizedBox(height: 10),
+            Text(
+              _dateText(article.createdAt),
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
       ),
     );
   }
