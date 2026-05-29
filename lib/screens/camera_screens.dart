@@ -40,14 +40,13 @@ class _AllergyScreenState extends State<AllergyScreen> {
       final result = await AllergyApi.detect(File(picked.path));
       if (!mounted) return;
 
-      final names = result.allergens.map(allergenName).toList(growable: false);
+      final names = result.allergens;
 
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => AllergyResultScreen(
             imagePath: picked.path,
-            allergenCodes: result.allergens,
             allergenNames: names,
             cached: result.cached,
           ),
