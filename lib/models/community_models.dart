@@ -49,3 +49,35 @@ class CommunityListResponse {
     );
   }
 }
+
+class CommunityComment {
+  final int id;
+  final int articleId;
+  final String userName;
+  final String userId;
+  final String content;
+  final int likes;
+  final DateTime createdAt;
+
+  CommunityComment({
+    required this.id,
+    required this.articleId,
+    required this.userName,
+    required this.userId,
+    required this.content,
+    required this.likes,
+    required this.createdAt,
+  });
+
+  factory CommunityComment.fromJson(Map<String, dynamic> json) {
+    return CommunityComment(
+      id: (json['id'] as num).toInt(),
+      articleId: (json['article_id'] as num).toInt(),
+      userName: (json['user_name'] ?? '').toString(),
+      userId: (json['user_id'] ?? '').toString(),
+      content: (json['content'] ?? '').toString(),
+      likes: (json['likes'] as num?)?.toInt() ?? 0,
+      createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()) ?? DateTime.now(),
+    );
+  }
+}

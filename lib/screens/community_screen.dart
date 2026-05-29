@@ -151,7 +151,17 @@ class _CommunityScreenState extends State<CommunityScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       itemCount: _articles.length,
       separatorBuilder: (_, __) => const SizedBox(height: 16),
-      itemBuilder: (_, i) => _PostCard(article: _articles[i]),
+      itemBuilder: (_, i) => _PostCard(article: _articles[i],
+        onTap: () async {
+          await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CommunityDetailScreen(article: _articles[i]),
+                ),
+          );
+          await _load(page: _page);
+        }
+      ),
     );
   }
 }
@@ -188,7 +198,8 @@ class _WriteButton extends StatelessWidget {
 
 class _PostCard extends StatelessWidget {
   final CommunityArticle article;
-  const _PostCard({required this.article});
+  final VoidCallback onTap;
+  const _PostCard({required this.article, required this.onTap});
 
   String _dateText(DateTime dt) {
     final y = dt.year.toString().padLeft(4, '0');
@@ -206,6 +217,7 @@ class _PostCard extends StatelessWidget {
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
       ),
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
