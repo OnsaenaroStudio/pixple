@@ -127,7 +127,7 @@ class AllergyResultScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              if (allergenNames.isEmpty) {
+              if (allergenNames.isEmpty)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
@@ -143,7 +143,7 @@ class AllergyResultScreen extends StatelessWidget {
                     ),
                   ),
                 )
-              } else {
+              else
                 Column(
                   children: allergenNames.map((name) {
                     return Container(
@@ -165,8 +165,7 @@ class AllergyResultScreen extends StatelessWidget {
                       ),
                     );
                   }).toList(),
-                )
-              },
+                ),
 
               if (cached)
                 const Padding(
