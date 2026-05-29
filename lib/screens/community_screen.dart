@@ -3,6 +3,7 @@ import '../widgets/bottom_nav_bar.dart';
 import '../theme/app_theme.dart';
 import '../services/community_api.dart';
 import '../models/community_models.dart';
+import 'community_detail_screen.dart';
 import 'write_screen.dart';
 
 class CommunityScreen extends StatefulWidget {
