@@ -30,7 +30,7 @@ class _AllergyScreenState extends State<AllergyScreen> {
     if (_loading) return;
 
     final picked = await ImagePicker().pickImage(
-      source: ImageSource.gallery, // 또는 ImageSource.camera
+      source: ImageSource.camera, // 또는 ImageSource.gallery
       imageQuality: 85,
     );
     if (picked == null) return;
