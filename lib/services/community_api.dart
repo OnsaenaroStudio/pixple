@@ -119,41 +119,41 @@ class CommunityApi {
     final jsonMap = jsonDecode(res.body) as Map<String, dynamic>;
     return jsonMap['success'] == true;
   }
-}
 
-static Future<bool> deleteArticle({required int articleId}) async {
-  final uri = Uri.https(_host, '/api/community/delete');
+  static Future<bool> deleteArticle({required int articleId}) async {
+    final uri = Uri.https(_host, '/api/community/delete');
 
-  final res = await http.post(
-    uri,
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'article_id': articleId}),
-  );
+    final res = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'article_id': articleId}),
+    );
 
-  if (res.statusCode != 200) {
-    throw Exception('게시글 삭제 실패: ${res.statusCode}');
+    if (res.statusCode != 200) {
+      throw Exception('게시글 삭제 실패: ${res.statusCode}');
+    }
+
+    final jsonMap = jsonDecode(res.body) as Map<String, dynamic>;
+    return jsonMap['success'] == true;
   }
 
-  final jsonMap = jsonDecode(res.body) as Map<String, dynamic>;
-  return jsonMap['success'] == true;
-}
-
-static Future<bool> deleteComment({
-  required int commentId,
-  required String userId,
-}) async {
-  final uri = Uri.https(_host, '/api/community/comment/delete');
-  final res = await http.post(
-    uri,
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({
-      'comment_id': commentId,
-      'user_id': userId,
-    }),
-  );
-  if (res.statusCode != 200) {
-    throw Exception('댓글 삭제 실패: ${res.statusCode}');
+  static Future<bool> deleteComment({
+    required int commentId,
+    required String userId,
+  }) async {
+    final uri = Uri.https(_host, '/api/community/comment/delete');
+    final res = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'comment_id': commentId,
+        'user_id': userId,
+      }),
+    );
+    if (res.statusCode != 200) {
+      throw Exception('댓글 삭제 실패: ${res.statusCode}');
+    }
+    final jsonMap = jsonDecode(res.body) as Map<String, dynamic>;
+    return jsonMap['success'] == true;
   }
-  final jsonMap = jsonDecode(res.body) as Map<String, dynamic>;
-  return jsonMap['success'] == true;
 }
