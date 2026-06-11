@@ -154,12 +154,16 @@ class _CommunityScreenState extends State<CommunityScreen> {
       separatorBuilder: (_, __) => const SizedBox(height: 16),
       itemBuilder: (_, i) => _PostCard(article: _articles[i],
         onTap: () async {
-          await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CommunityDetailScreen(article: _articles[i]),
-                ),
+          final deleted = await Navigator.push<bool>(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CommunityDetailScreen(article: _articles[i]),
+            ),
           );
+
+          if (deleted == true) {
+            await _load(page: 1); // 또는 _load(page: _page)
+          }
           await _load(page: _page);
         }
       ),
