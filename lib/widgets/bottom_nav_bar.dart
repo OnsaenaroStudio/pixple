@@ -38,18 +38,18 @@ class BottomNavBar extends StatelessWidget {
             isActive: currentTab == NavTab.allergy,
             onTap: () => onTabSelected(NavTab.allergy),
           ),
-          _NavButton(
-            icon: Icons.menu_book,
-            label: '레시피',
-            isActive: currentTab == NavTab.recipe,
-            onTap: () => onTabSelected(NavTab.recipe),
-          ),
-          _NavButton(
-            icon: Icons.delete_outline,
-            label: '남은 음식',
-            isActive: currentTab == NavTab.leftover,
-            onTap: () => onTabSelected(NavTab.leftover),
-          ),
+          // _NavButton(
+          //   icon: Icons.menu_book,
+          //   label: '레시피',
+          //   isActive: currentTab == NavTab.recipe,
+          //   onTap: () => onTabSelected(NavTab.recipe),
+          // ),
+          // _NavButton(
+          //   icon: Icons.delete_outline,
+          //   label: '남은 음식',
+          //   isActive: currentTab == NavTab.leftover,
+          //   onTap: () => onTabSelected(NavTab.leftover),
+          // ),
           _NavButton(
             icon: Icons.chat_bubble_outline,
             label: '커뮤',
