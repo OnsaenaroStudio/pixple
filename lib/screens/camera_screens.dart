@@ -315,6 +315,7 @@ class _CameraBaseScreen extends StatelessWidget {
     required this.onTabSelected,
     this.subtitle,
     this.onPhotoTap,
+    this.onGalleryTap,
   });
 
   void _openMenu(BuildContext context) {
