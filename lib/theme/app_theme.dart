@@ -27,6 +27,11 @@ class AppColors {
   static const backButton = primaryLight;
   static const divider = Color(0xFFDCEBD6);
   static const error = Color(0xFFD9534F);
+
+  static const cardBackground = card;
+  static const navBackground = nav;
+  static const navIconActive = navActive;
+  static const navIconInactive = navInactive;
 }
 
 class AppTheme {

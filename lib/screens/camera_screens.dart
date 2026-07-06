@@ -307,6 +307,7 @@ class _CameraBaseScreen extends StatelessWidget {
   final NavTab currentTab;
   final ValueChanged<NavTab> onTabSelected;
   final VoidCallback? onPhotoTap;
+  final VoidCallback? onGalleryTap;
 
   const _CameraBaseScreen({
     required this.title,
@@ -404,7 +405,7 @@ class _CameraBaseScreen extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 36),
-                  PhotoPickerButton(onTap: onPhotoTap),
+                  PhotoPickerButton(onTap: onPhotoTap, onGalleryTap: onGalleryTap),
                 ],
               ),
             ),
