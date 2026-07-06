@@ -6,7 +6,6 @@ import '../theme/app_theme.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class CommunityDetailScreen extends StatefulWidget {
   final CommunityArticle article;
 
@@ -53,29 +52,27 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
 
   Future<Set<int>> _loadLikedCommentIds(String userId) async {
     final prefs = await SharedPreferences.getInstance();
-    final key = 'liked_comments_$userId';
-    final raw = prefs.getString(key);
+    final raw = prefs.getString('liked_comments_$userId');
     if (raw == null || raw.isEmpty) return {};
-    final list = (jsonDecode(raw) as List).map((e) => e as int).toSet();
-    return list;
+    return (jsonDecode(raw) as List).map((e) => e as int).toSet();
   }
 
   Future<void> _saveLikedCommentIds() async {
     final userId = _myUserId;
     if (userId == null || userId.isEmpty) return;
     final prefs = await SharedPreferences.getInstance();
-    final key = 'liked_comments_$userId';
-    await prefs.setString(key, jsonEncode(_likedCommentIds.toList()));
+    await prefs.setString(
+      'liked_comments_$userId',
+      jsonEncode(_likedCommentIds.toList()),
+    );
   }
 
-  Future<void> _deleteArticle() async {
-    if (_deletingArticle) return;
-
+  Future<bool> _confirmDialog(String title, String message) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('게시글 삭제'),
-        content: const Text('이 게시글을 삭제할까요?'),
+        title: Text(title),
+        content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -83,34 +80,40 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('삭제'),
           ),
         ],
       ),
     );
+    return ok == true;
+  }
 
-    if (ok != true) return;
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  Future<void> _deleteArticle() async {
+    if (_deletingArticle) return;
+    if (!await _confirmDialog('게시글 삭제', '이 게시글을 삭제할까요?')) return;
 
     setState(() => _deletingArticle = true);
     try {
-      final success = await CommunityApi.deleteArticle(articleId: widget.article.id);
+      final success =
+          await CommunityApi.deleteArticle(articleId: widget.article.id);
       if (!mounted) return;
 
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('게시글이 삭제되었습니다.')),
-        );
-        Navigator.pop(context, true); // 목록 화면에 "삭제됨" 알림
+        _showSnack('게시글이 삭제되었습니다.');
+        Navigator.pop(context, true);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('게시글 삭제에 실패했습니다.')),
-        );
+        _showSnack('게시글 삭제에 실패했습니다.');
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('게시글 삭제 실패: $e')),
-      );
+      _showSnack('게시글 삭제 실패: $e');
     } finally {
       if (mounted) setState(() => _deletingArticle = false);
     }
@@ -130,7 +133,8 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     });
 
     try {
-      final list = await CommunityApi.fetchComments(articleId: widget.article.id);
+      final list =
+          await CommunityApi.fetchComments(articleId: widget.article.id);
       setState(() => _comments = list);
     } catch (e) {
       setState(() => _error = e.toString());
@@ -147,16 +151,12 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     final userId = _myUserId;
 
     if (name.isEmpty || content.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('닉네임과 댓글 내용을 입력해주세요.')),
-      );
+      _showSnack('닉네임과 댓글 내용을 입력해주세요.');
       return;
     }
 
     if (userId == null || userId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('사용자 식별값 초기화 중입니다. 잠시 후 다시 시도해주세요.')),
-      );
+      _showSnack('사용자 식별값 초기화 중입니다. 잠시 후 다시 시도해주세요.');
       return;
     }
 
@@ -180,15 +180,11 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
           _commentController.clear();
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('댓글 등록에 실패했습니다.')),
-        );
+        _showSnack('댓글 등록에 실패했습니다.');
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('댓글 등록 실패: $e')),
-      );
+      _showSnack('댓글 등록 실패: $e');
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -196,14 +192,12 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
 
   Future<void> _like(CommunityComment c) async {
     if (_likedCommentIds.contains(c.id)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('이미 좋아요를 눌렀어요.')),
-      );
+      _showSnack('이미 좋아요를 눌렀어요.');
       return;
     }
 
     try {
-      final ok = await CommunityApi.likeComment(commentId: c.id); // 기존 API 그대로
+      final ok = await CommunityApi.likeComment(commentId: c.id);
       if (!ok || !mounted) return;
 
       setState(() {
@@ -231,39 +225,12 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     if (_deleting) return;
 
     final myId = _myUserId;
-    if (myId == null || c.userId != myId) return;
+    if (myId == null || myId.isEmpty || c.userId != myId) return;
 
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('댓글 삭제'),
-        content: const Text('이 댓글을 삭제할까요?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
+    if (!await _confirmDialog('댓글 삭제', '이 댓글을 삭제할까요?')) return;
 
     setState(() => _deleting = true);
     try {
-      final myId = _myUserId;
-      if (myId == null || myId.isEmpty) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('사용자 ID를 확인할 수 없어요.')),
-        );
-        return;
-      }
-
       final ok = await CommunityApi.deleteComment(
         commentId: c.id,
         userId: myId,
@@ -272,19 +239,13 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
       if (!mounted) return;
 
       if (ok) {
-        setState(() {
-          _comments.removeWhere((e) => e.id == c.id);
-        });
+        setState(() => _comments.removeWhere((e) => e.id == c.id));
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('댓글 삭제 실패')),
-        );
+        _showSnack('댓글 삭제 실패');
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('댓글 삭제 실패: $e')),
-      );
+      _showSnack('댓글 삭제 실패: $e');
     } finally {
       if (mounted) setState(() => _deleting = false);
     }
@@ -293,6 +254,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final a = widget.article;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -312,47 +274,20 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
               child: RefreshIndicator(
                 onRefresh: _loadComments,
                 child: ListView(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.cardBackground,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (a.hashtags.isNotEmpty)
-                            Wrap(
-                              spacing: 6,
-                              runSpacing: 6,
-                              children: a.hashtags.map((t) => Chip(label: Text('#$t'))).toList(),
-                            ),
-                          if (a.hashtags.isNotEmpty) const SizedBox(height: 10),
-                          Text(
-                            a.title,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            a.content,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      '댓글',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                    _ArticleCard(article: a),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Text('댓글', style: textTheme.titleLarge),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${_comments.length}',
+                          style: textTheme.titleMedium
+                              ?.copyWith(color: AppColors.primary),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     if (_loading)
@@ -363,47 +298,17 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                         ),
                       )
                     else if (_error != null)
-                      Text('댓글 로드 실패: $_error')
+                      _EmptyNotice(message: '댓글 로드 실패: $_error')
                     else if (_comments.isEmpty)
-                      const Text('아직 댓글이 없습니다.')
+                      const _EmptyNotice(message: '아직 댓글이 없어요.\n첫 댓글을 남겨보세요!')
                     else
                       ..._comments.map(
-                        (c) => Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppColors.cardBackground,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${c.userName} (${c.userId})',
-                                style: const TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(c.content),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Text('좋아요 ${c.likes}'),
-                                  const SizedBox(width: 8),
-                                  TextButton(
-                                    onPressed: _likedCommentIds.contains(c.id) ? null : () => _like(c),
-                                    child: Text(_likedCommentIds.contains(c.id) ? '추천 완료' : '추천'),
-                                  ),
-                                  if (_myUserId != null && c.userId == _myUserId) ...[
-                                    const SizedBox(width: 4),
-                                    TextButton(
-                                      onPressed: _deleting ? null : () => _deleteComment(c),
-                                      child: const Text('삭제'),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ],
-                          ),
+                        (c) => _CommentTile(
+                          comment: c,
+                          isMine: _myUserId != null && c.userId == _myUserId,
+                          isLiked: _likedCommentIds.contains(c.id),
+                          onLike: () => _like(c),
+                          onDelete: _deleting ? null : () => _deleteComment(c),
                         ),
                       ),
                     const SizedBox(height: 100),
@@ -411,52 +316,265 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                 ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-              decoration: const BoxDecoration(
-                border: Border(top: BorderSide(color: Colors.black12)),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(
-                            hintText: '닉네임',
-                            isDense: true,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _commentController,
-                          minLines: 1,
-                          maxLines: 3,
-                          decoration: const InputDecoration(
-                            hintText: '댓글을 입력하세요',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: _submitting ? null : _submitComment,
-                        child: Text(_submitting ? '등록중' : '등록'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            _CommentInputBar(
+              nameController: _nameController,
+              commentController: _commentController,
+              submitting: _submitting,
+              onSubmit: _submitComment,
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ArticleCard extends StatelessWidget {
+  final CommunityArticle article;
+
+  const _ArticleCard({required this.article});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (article.hashtags.isNotEmpty) ...[
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: article.hashtags
+                  .map((t) => Chip(
+                        label: Text('#$t'),
+                        backgroundColor: Colors.white,
+                        labelStyle: textTheme.bodySmall
+                            ?.copyWith(color: AppColors.primary),
+                        side: BorderSide.none,
+                        visualDensity: VisualDensity.compact,
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 12),
+          ],
+          Text(article.title, style: textTheme.titleLarge),
+          const SizedBox(height: 10),
+          Text(
+            article.content,
+            style: textTheme.bodyMedium?.copyWith(height: 1.5),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CommentTile extends StatelessWidget {
+  final CommunityComment comment;
+  final bool isMine;
+  final bool isLiked;
+  final VoidCallback onLike;
+  final VoidCallback? onDelete;
+
+  const _CommentTile({
+    required this.comment,
+    required this.isMine,
+    required this.isLiked,
+    required this.onLike,
+    this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const CircleAvatar(
+                radius: 14,
+                backgroundColor: AppColors.primary,
+                child: Icon(Icons.person, size: 16, color: Colors.white),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  comment.userName,
+                  style: textTheme.titleSmall,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (isMine)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '내 댓글',
+                    style: textTheme.labelSmall
+                        ?.copyWith(color: AppColors.primary),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            comment.content,
+            style: textTheme.bodyMedium?.copyWith(height: 1.4),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              TextButton.icon(
+                onPressed: isLiked ? null : onLike,
+                icon: Icon(
+                  isLiked ? Icons.favorite : Icons.favorite_border,
+                  size: 16,
+                ),
+                label: Text('${comment.likes}'),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+              ),
+              const Spacer(),
+              if (isMine)
+                TextButton(
+                  onPressed: onDelete,
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: const Text('삭제'),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyNotice extends StatelessWidget {
+  final String message;
+
+  const _EmptyNotice({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      alignment: Alignment.center,
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: Theme.of(context)
+            .textTheme
+            .bodyMedium
+            ?.copyWith(color: AppColors.textSecondary, height: 1.5),
+      ),
+    );
+  }
+}
+
+class _CommentInputBar extends StatelessWidget {
+  final TextEditingController nameController;
+  final TextEditingController commentController;
+  final bool submitting;
+  final VoidCallback onSubmit;
+
+  const _CommentInputBar({
+    required this.nameController,
+    required this.commentController,
+    required this.submitting,
+    required this.onSubmit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: const BoxDecoration(
+        color: AppColors.nav,
+        border: Border(top: BorderSide(color: AppColors.divider)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              hintText: '닉네임',
+              isDense: true,
+              fillColor: AppColors.background,
+              prefixIcon: const Icon(Icons.person_outline,
+                  size: 20, color: AppColors.textSecondary),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: commentController,
+                  minLines: 1,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: '댓글을 입력하세요',
+                    isDense: true,
+                    fillColor: AppColors.background,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                height: 44,
+                child: ElevatedButton(
+                  onPressed: submitting ? null : onSubmit,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(64, 44),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                  child: submitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('등록'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

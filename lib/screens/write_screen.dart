@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../services/community_api.dart'; // 추가
+import '../services/community_api.dart';
 
 class WriteScreen extends StatefulWidget {
   const WriteScreen({super.key});
@@ -35,6 +35,12 @@ class _WriteScreenState extends State<WriteScreen> {
         .toList();
   }
 
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   Future<void> _submit() async {
     if (_isSubmitting) return;
 
@@ -43,16 +49,12 @@ class _WriteScreenState extends State<WriteScreen> {
     final tags = _parseHashtags(_hashtagController.text);
 
     if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('제목을 입력해주세요.')),
-      );
+      _showSnack('제목을 입력해주세요.');
       return;
     }
 
     if (content.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('내용을 입력해주세요.')),
-      );
+      _showSnack('내용을 입력해주세요.');
       return;
     }
 
@@ -68,220 +70,103 @@ class _WriteScreenState extends State<WriteScreen> {
       if (!mounted) return;
 
       if (articleId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('업로드에 실패했어요. 다시 시도해주세요.')),
-        );
+        _showSnack('업로드에 실패했어요. 다시 시도해주세요.');
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('업로드 완료 (ID: $articleId)')),
-      );
-
-      Navigator.pop(context, true); // 성공 플래그 반환
+      _showSnack('글이 등록되었습니다.');
+      Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('업로드 실패: $e')),
-      );
+      _showSnack('업로드 실패: $e');
     } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('글 쓰기'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: _isSubmitting ? null : () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-              child: _BackButton(
-                onTap: _isSubmitting ? null : () => Navigator.pop(context),
-              ),
-            ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _TitleField(controller: _titleController),
-                    const SizedBox(height: 16),
-                    _ContentField(controller: _contentController),
-                    const SizedBox(height: 16),
-                    _HashtagField(controller: _hashtagController),
-                    const SizedBox(height: 32),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: _UploadButton(
-                        onTap: _isSubmitting ? null : _submit,
-                        isLoading: _isSubmitting,
+                    Text('제목', style: textTheme.titleSmall),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _titleController,
+                      enabled: !_isSubmitting,
+                      maxLength: 100,
+                      decoration: const InputDecoration(
+                        hintText: '글 제목을 입력하세요',
+                        counterText: '',
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
+                    Text('내용', style: textTheme.titleSmall),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _contentController,
+                      enabled: !_isSubmitting,
+                      minLines: 10,
+                      maxLines: null,
+                      textAlignVertical: TextAlignVertical.top,
+                      decoration: const InputDecoration(
+                        hintText: '내용을 입력하세요',
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text('해시태그', style: textTheme.titleSmall),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _hashtagController,
+                      enabled: !_isSubmitting,
+                      decoration: const InputDecoration(
+                        hintText: '쉼표로 구분해 입력 (예: 알레르기, 레시피)',
+                        prefixIcon: Icon(Icons.tag,
+                            size: 20, color: AppColors.textSecondary),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : _submit,
+                child: _isSubmitting
+                    ? const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
+                          ),
+                          SizedBox(width: 10),
+                          Text('업로드 중...'),
+                        ],
+                      )
+                    : const Text('업로드'),
+              ),
+            ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BackButton extends StatelessWidget {
-  final VoidCallback? onTap;
-  const _BackButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Opacity(
-        opacity: onTap == null ? 0.5 : 1,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.backButton,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.arrow_back, size: 20, color: AppColors.textPrimary),
-              SizedBox(width: 4),
-              Text(
-                '뒤로가기',
-                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TitleField extends StatelessWidget {
-  final TextEditingController controller;
-  const _TitleField({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: TextField(
-        controller: controller,
-        style: const TextStyle(fontSize: 16, color: AppColors.textPrimary),
-        decoration: InputDecoration(
-          hintText: '글 제목',
-          hintStyle: TextStyle(fontSize: 16, color: AppColors.textSecondary),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        ),
-      ),
-    );
-  }
-}
-
-class _ContentField extends StatelessWidget {
-  final TextEditingController controller;
-  const _ContentField({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 280,
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: TextField(
-        controller: controller,
-        maxLines: null,
-        expands: true,
-        textAlignVertical: TextAlignVertical.top,
-        style: const TextStyle(fontSize: 16, color: AppColors.textPrimary),
-        decoration: InputDecoration(
-          hintText: '글 내용',
-          hintStyle: TextStyle(fontSize: 16, color: AppColors.textSecondary),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
-        ),
-      ),
-    );
-  }
-}
-
-class _HashtagField extends StatelessWidget {
-  final TextEditingController controller;
-  const _HashtagField({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      style: const TextStyle(fontSize: 16, color: AppColors.textSecondary),
-      decoration: InputDecoration(
-        hintText: '# 해시 태그 입력 (쉼표로 구분)',
-        hintStyle: TextStyle(fontSize: 16, color: AppColors.textSecondary),
-        border: InputBorder.none,
-        contentPadding: EdgeInsets.zero,
-      ),
-    );
-  }
-}
-
-class _UploadButton extends StatelessWidget {
-  final VoidCallback? onTap;
-  final bool isLoading;
-
-  const _UploadButton({
-    required this.onTap,
-    required this.isLoading,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Opacity(
-        opacity: onTap == null ? 0.6 : 1,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!isLoading) ...[
-                const Icon(Icons.edit_outlined, size: 20, color: AppColors.navIconActive),
-                const SizedBox(width: 8),
-              ],
-              if (isLoading)
-                const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              if (isLoading) const SizedBox(width: 8),
-              Text(
-                isLoading ? '업로드 중...' : '업로드',
-                style: const TextStyle(fontSize: 16, color: AppColors.textPrimary),
-              ),
-            ],
-          ),
         ),
       ),
     );
