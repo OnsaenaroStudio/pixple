@@ -255,7 +255,20 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
 
     setState(() => _deleting = true);
     try {
-      final ok = await CommunityApi.deleteComment(commentId: c.id);
+      final myId = _myUserId;
+      if (myId == null || myId.isEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('사용자 ID를 확인할 수 없어요.')),
+        );
+        return;
+      }
+
+      final ok = await CommunityApi.deleteComment(
+        commentId: c.id,
+        userId: myId,
+      );
+
       if (!mounted) return;
 
       if (ok) {
