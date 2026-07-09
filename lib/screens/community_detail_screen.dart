@@ -272,11 +272,12 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
       appBar: AppBar(
         title: const Text('게시글'),
         actions: [
-          IconButton(
-            onPressed: _deletingArticle ? null : _deleteArticle,
-            icon: const Icon(Icons.delete_outline),
-            tooltip: '게시글 삭제',
-          ),
+          if (_isMyArticle)
+            IconButton(
+              onPressed: _deletingArticle ? null : _deleteArticle,
+              icon: const Icon(Icons.delete_outline),
+              tooltip: '게시글 삭제',
+            ),
         ],
       ),
       body: SafeArea(

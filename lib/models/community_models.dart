@@ -30,7 +30,7 @@ class CommunityArticle {
       content: (json['article_content'] ?? '').toString(),
       hashtags: tags,
       createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()) ?? DateTime.now(),
-      userId: (json['user_id'] ?? '').toString(),
+      userId: json['user_id'] as String? ?? '',
     );
   }
 }
