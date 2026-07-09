@@ -24,6 +24,7 @@ class CommunityApi {
   static Future<int?> writeArticle({
     required String title,
     required String content,
+    required String userId,
     List<String>? hashtags,
   }) async {
     final uri = Uri.https(_host, '/api/community/write');
@@ -31,6 +32,7 @@ class CommunityApi {
       'article_title': title,
       'article_content': content,
       'article_hash_tag': hashtags ?? <String>[],
+      'user_id': userId,
     };
 
     final res = await http.post(
@@ -120,13 +122,19 @@ class CommunityApi {
     return jsonMap['success'] == true;
   }
 
-  static Future<bool> deleteArticle({required int articleId}) async {
+  static Future<bool> deleteArticle({
+    required int articleId,
+    required String userId,
+  }) async {
     final uri = Uri.https(_host, '/api/community/delete');
 
     final res = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'article_id': articleId}),
+      body: jsonEncode({
+        'article_id': articleId,
+        'user_id': userId,
+      }),
     );
 
     if (res.statusCode != 200) {

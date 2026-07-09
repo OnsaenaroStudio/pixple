@@ -95,14 +95,25 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     );
   }
 
+  bool get _isMyArticle => _myUserId != null && _myUserId!.isNotEmpty && widget.article.userId == _myUserId;
+
   Future<void> _deleteArticle() async {
     if (_deletingArticle) return;
+
+    final myId = _myUserId;
+    if (myId == null || myId.isEmpty || !_isMyArticle) {
+      _showSnack('본인이 작성한 게시글만 삭제할 수 있어요.');
+      return;
+    }
+
     if (!await _confirmDialog('게시글 삭제', '이 게시글을 삭제할까요?')) return;
 
     setState(() => _deletingArticle = true);
     try {
-      final success =
-          await CommunityApi.deleteArticle(articleId: widget.article.id);
+      final success = await CommunityApi.deleteArticle(
+        articleId: widget.article.id,
+        userId: myId,
+      );
       if (!mounted) return;
 
       if (success) {
@@ -118,6 +129,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
       if (mounted) setState(() => _deletingArticle = false);
     }
   }
+
 
   @override
   void dispose() {
