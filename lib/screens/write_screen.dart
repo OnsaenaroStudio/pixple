@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/community_api.dart';
+import '../services/local_identity.dart';
 
 class WriteScreen extends StatefulWidget {
   const WriteScreen({super.key});
@@ -61,9 +62,11 @@ class _WriteScreenState extends State<WriteScreen> {
     setState(() => _isSubmitting = true);
 
     try {
+      final userId = await LocalIdentity.getOrCreateUserId();
       final articleId = await CommunityApi.writeArticle(
         title: title,
         content: content,
+        userId: userId,
         hashtags: tags,
       );
 

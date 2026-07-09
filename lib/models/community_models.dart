@@ -4,6 +4,7 @@ class CommunityArticle {
   final String content;
   final List<String> hashtags;
   final DateTime createdAt;
+  final String userId;
 
   CommunityArticle({
     required this.id,
@@ -11,6 +12,7 @@ class CommunityArticle {
     required this.content,
     required this.hashtags,
     required this.createdAt,
+    required this.userId,
   });
 
   factory CommunityArticle.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class CommunityArticle {
       content: (json['article_content'] ?? '').toString(),
       hashtags: tags,
       createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()) ?? DateTime.now(),
+      userId: (json['user_id'] ?? '').toString(),
     );
   }
 }
