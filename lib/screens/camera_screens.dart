@@ -100,7 +100,7 @@ class _AllergyScreenState extends State<AllergyScreen> {
       children: [
         _CameraBaseScreen(
           title: '알레르기 검사',
-          subtitle: '제품 성분표를 촬영해 주세요',
+          subtitle: '제품 성분표또는 음식을 촬영해 주세요',
           currentTab: widget.currentTab,
           onTabSelected: widget.onTabSelected,
           onPhotoTap: _handlePhotoTap,
@@ -318,63 +318,12 @@ class _CameraBaseScreen extends StatelessWidget {
     this.onGalleryTap,
   });
 
-  void _openMenu(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.background,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.divider,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            // const SizedBox(height: 8),
-            // ListTile(
-            //   leading: const Icon(Icons.science_outlined, color: AppColors.primary),
-            //   title: const Text('알레르기 검사'),
-            //   onTap: () {
-            //     Navigator.pop(ctx);
-            //     onTabSelected(NavTab.allergy); // 실제 enum 값에 맞게 수정
-            //   },
-            // ),
-            // ListTile(
-            //   leading: const Icon(Icons.restaurant_menu, color: AppColors.primary),
-            //   title: const Text('음식 레시피'),
-            //   onTap: () {
-            //     Navigator.pop(ctx);
-            //     onTabSelected(NavTab.recipe);
-            //   },
-            // ),
-            // ListTile(
-            //   leading: const Icon(Icons.rice_bowl_outlined, color: AppColors.primary),
-            //   title: const Text('남은 음식 레시피'),
-            //   onTap: () {
-            //     Navigator.pop(ctx);
-            //     onTabSelected(NavTab.leftover);
-            //   },
-            // ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      endDrawer: _AppDrawer(onTabSelected: onTabSelected),
       body: SafeArea(
         child: Column(
           children: [
@@ -382,9 +331,11 @@ class _CameraBaseScreen extends StatelessWidget {
               padding: const EdgeInsets.only(top: 8, right: 12),
               child: Align(
                 alignment: Alignment.topRight,
-                child: IconButton(
-                  icon: const Icon(Icons.grid_view_rounded, size: 28),
-                  onPressed: () => _openMenu(context),
+                child: Builder(
+                  builder: (ctx) => IconButton(
+                    icon: const Icon(Icons.grid_view_rounded, size: 28),
+                    onPressed: () => Scaffold.of(ctx).openEndDrawer(),
+                  ),
                 ),
               ),
             ),
@@ -418,6 +369,127 @@ class _CameraBaseScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AppDrawer extends StatelessWidget {
+  final ValueChanged<NavTab> onTabSelected;
+
+  const _AppDrawer({required this.onTabSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Drawer(
+      backgroundColor: AppColors.background,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+              child: Row(
+                children: [
+                  const CircleAvatar(
+                    radius: 24,
+                    backgroundColor: AppColors.primaryLight,
+                    child: Icon(Icons.eco, color: AppColors.primary, size: 28),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Pixple',
+                    style: textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+              child: Text(
+                '메뉴',
+                style: textTheme.labelMedium
+                    ?.copyWith(color: AppColors.textSecondary),
+              ),
+            ),
+            _DrawerItem(
+              icon: Icons.science_outlined,
+              label: '알레르기 검사',
+              onTap: () {
+                Navigator.pop(context);
+                onTabSelected(NavTab.allergy); // 실제 enum 값에 맞게 수정
+              },
+            ),
+            _DrawerItem(
+              icon: Icons.forum_outlined,
+              label: '커뮤니티',
+              onTap: () {
+                Navigator.pop(context);
+                onTabSelected(NavTab.community);
+              },
+            ),
+            const Divider(),
+            _DrawerItem(
+              icon: Icons.settings_outlined,
+              label: '설정',
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: 설정 화면으로 이동
+                // Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+              },
+            ),
+            _DrawerItem(
+              icon: Icons.info_outline,
+              label: '앱 정보',
+              onTap: () {
+                Navigator.pop(context);
+                showAboutDialog(
+                  context: context,
+                  applicationName: 'Pixple',
+                  applicationVersion: '1.0.0',
+                  applicationIcon: const Icon(Icons.eco,
+                      color: AppColors.primary, size: 40),
+                );
+              },
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                'v1.0.0',
+                style: textTheme.bodySmall
+                    ?.copyWith(color: AppColors.textSecondary),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DrawerItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _DrawerItem({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon, color: AppColors.primary),
+      title: Text(label),
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+      visualDensity: VisualDensity.compact,
     );
   }
 }
