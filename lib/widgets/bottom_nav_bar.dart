@@ -23,11 +23,12 @@ class BottomNavBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(33),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
         ],
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -86,7 +87,7 @@ class _NavButton extends StatelessWidget {
         height: 50,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: isActive ? AppColors.cardBackground : Colors.transparent,
+          color: isActive ? AppColors.primaryLight : Colors.transparent,
         ),
         child: Icon(icon, color: color, size: 24),
       ),

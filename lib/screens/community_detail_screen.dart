@@ -357,6 +357,14 @@ class _ArticleCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: AppColors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,9 +376,11 @@ class _ArticleCard extends StatelessWidget {
               children: article.hashtags
                   .map((t) => Chip(
                         label: Text('#$t'),
-                        backgroundColor: Colors.white,
-                        labelStyle: textTheme.bodySmall
-                            ?.copyWith(color: AppColors.primary),
+                        backgroundColor: AppColors.primaryLight,
+                        labelStyle: textTheme.bodySmall?.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                         side: BorderSide.none,
                         visualDensity: VisualDensity.compact,
                       ))
@@ -378,11 +388,19 @@ class _ArticleCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
           ],
-          Text(article.title, style: textTheme.titleLarge),
-          const SizedBox(height: 10),
+          Text(
+            article.title,
+            style: textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
           Text(
             article.content,
-            style: textTheme.bodyMedium?.copyWith(height: 1.5),
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppColors.textPrimary,
+              height: 1.5,
+            ),
           ),
         ],
       ),
@@ -415,6 +433,7 @@ class _CommentTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,14 +442,16 @@ class _CommentTile extends StatelessWidget {
             children: [
               const CircleAvatar(
                 radius: 14,
-                backgroundColor: AppColors.primary,
-                child: Icon(Icons.person, size: 16, color: Colors.white),
+                backgroundColor: AppColors.primaryLight,
+                child: Icon(Icons.person, size: 16, color: AppColors.primary),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   comment.userName,
-                  style: textTheme.titleSmall,
+                  style: textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -439,13 +460,15 @@ class _CommentTile extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.primaryLight,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     '내 댓글',
-                    style: textTheme.labelSmall
-                        ?.copyWith(color: AppColors.primary),
+                    style: textTheme.labelSmall?.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
             ],

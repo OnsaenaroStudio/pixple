@@ -14,26 +14,34 @@ class PhotoPickerButton extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Material(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(28),
-          child: InkWell(
-            onTap: onTap,
+        Container(
+          width: 300,
+          height: 300,
+          decoration: BoxDecoration(
+            color: AppColors.card,
             borderRadius: BorderRadius.circular(28),
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: AppColors.divider, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
               ),
+            ],
+            border: Border.all(color: AppColors.divider, width: 1.5),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(28),
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(28),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: const BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.primaryLight,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -45,8 +53,10 @@ class PhotoPickerButton extends StatelessWidget {
                   const SizedBox(height: 20),
                   Text(
                     '탭해서 사진 찍기',
-                    style: textTheme.titleMedium
-                        ?.copyWith(color: AppColors.primary),
+                    style: textTheme.titleMedium?.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),

@@ -5,28 +5,28 @@ class AppColors {
   AppColors._();
 
   // Brand
-  static const primary = Color(0xFF4A7C59);
-  static const primaryLight = Color(0xFFE8F5E3);
+  static const primary = Color(0xFF1E3D2F);
+  static const primaryLight = Color(0xFFEBF2EE);
 
   // Surface
-  static const background = Color(0xFFF6FFF2);
-  static const card = Color(0xFFE8F5E3);
+  static const background = Color(0xFFF8F9FA);
+  static const card = Color(0xFFFFFFFF);
   static const nav = Color(0xFFFFFFFF);
-  static const photoButton = Color(0xFFD9D9D9);
+  static const photoButton = Color(0xFFE2E8F0);
 
   // Text
-  static const textPrimary = Color(0xFF1A1A1A);
-  static const textSecondary = Color(0xFF888888);
-  static const textOnPhoto = Color(0xFFF6FFF2);
+  static const textPrimary = Color(0xFF0F172A);
+  static const textSecondary = Color(0xFF64748B);
+  static const textOnPhoto = Color(0xFFFFFFFF);
 
   // Nav
   static const navActive = primary;
-  static const navInactive = Color(0xFFAAAAAA);
+  static const navInactive = Color(0xFF94A3B8);
 
   // Etc
-  static const backButton = primaryLight;
-  static const divider = Color(0xFFDCEBD6);
-  static const error = Color(0xFFD9534F);
+  static const backButton = Color(0xFFE2E8F0);
+  static const divider = Color(0xFFE2E8F0);
+  static const error = Color(0xFFEF4444);
 
   static const cardBackground = card;
   static const navBackground = nav;
@@ -50,7 +50,7 @@ class AppTheme {
     );
 
     return base.copyWith(
-      textTheme: GoogleFonts.juaTextTheme(base.textTheme).apply(
+      textTheme: GoogleFonts.notoSansKrTextTheme(base.textTheme).apply(
         bodyColor: AppColors.textPrimary,
         displayColor: AppColors.textPrimary,
       ),
@@ -95,7 +95,11 @@ class AppTheme {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderSide: const BorderSide(color: AppColors.divider),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.divider),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

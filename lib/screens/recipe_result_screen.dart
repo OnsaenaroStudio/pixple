@@ -26,7 +26,8 @@ class RecipeResultScreen extends StatelessWidget {
                 '레시피',
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -63,21 +64,23 @@ class _BackButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.backButton,
+          color: AppColors.primaryLight,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.arrow_back, size: 20, color: AppColors.textPrimary),
-            const SizedBox(width: 4),
+            const Icon(Icons.arrow_back_rounded, size: 18, color: AppColors.primary),
+            const SizedBox(width: 6),
             Text(
               '뒤로가기',
               style: const TextStyle(
-                fontSize: 16,
-                color: AppColors.textPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
               ),
             ),
           ],
@@ -101,6 +104,14 @@ class _RecipeStepCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: AppColors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

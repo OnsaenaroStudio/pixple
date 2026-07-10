@@ -2,9 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../data/allergen_map.dart';
+import 'package:pixple/services/local_identity.dart';
 import '../services/allergy_api.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../widgets/menu.dart';
 import '../widgets/photo_picker_button.dart';
 import '../theme/app_theme.dart';
 import 'recipe_result_screen.dart';
@@ -152,7 +153,12 @@ class AllergyResultScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 28),
-              Text('검출된 알레르기 성분', style: textTheme.titleLarge),
+              Text(
+                '검출된 알레르기 성분',
+                style: textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 16),
               if (allergenNames.isEmpty)
                 const _ResultBanner(
@@ -210,7 +216,9 @@ class _ResultBanner extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ),
         ],
@@ -242,7 +250,10 @@ class _AllergenTile extends StatelessWidget {
           Expanded(
             child: Text(
               name,
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: AppColors.error,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ),
         ],
@@ -323,7 +334,7 @@ class _CameraBaseScreen extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      endDrawer: _AppDrawer(onTabSelected: onTabSelected),
+      endDrawer: AppDrawer(onTabSelected: onTabSelected),
       body: SafeArea(
         child: Column(
           children: [
@@ -369,127 +380,6 @@ class _CameraBaseScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _AppDrawer extends StatelessWidget {
-  final ValueChanged<NavTab> onTabSelected;
-
-  const _AppDrawer({required this.onTabSelected});
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Drawer(
-      backgroundColor: AppColors.background,
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 24,
-                    backgroundColor: AppColors.primaryLight,
-                    child: Icon(Icons.eco, color: AppColors.primary, size: 28),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Pixple',
-                    style: textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
-              child: Text(
-                '메뉴',
-                style: textTheme.labelMedium
-                    ?.copyWith(color: AppColors.textSecondary),
-              ),
-            ),
-            _DrawerItem(
-              icon: Icons.science_outlined,
-              label: '알레르기 검사',
-              onTap: () {
-                Navigator.pop(context);
-                onTabSelected(NavTab.allergy); // 실제 enum 값에 맞게 수정
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.forum_outlined,
-              label: '커뮤니티',
-              onTap: () {
-                Navigator.pop(context);
-                onTabSelected(NavTab.community);
-              },
-            ),
-            const Divider(),
-            _DrawerItem(
-              icon: Icons.settings_outlined,
-              label: '설정',
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: 설정 화면으로 이동
-                // Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.info_outline,
-              label: '앱 정보',
-              onTap: () {
-                Navigator.pop(context);
-                showAboutDialog(
-                  context: context,
-                  applicationName: 'Pixple',
-                  applicationVersion: '1.0.0',
-                  applicationIcon: const Icon(Icons.eco,
-                      color: AppColors.primary, size: 40),
-                );
-              },
-            ),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Text(
-                'v1.0.0',
-                style: textTheme.bodySmall
-                    ?.copyWith(color: AppColors.textSecondary),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DrawerItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _DrawerItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: AppColors.primary),
-      title: Text(label),
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-      visualDensity: VisualDensity.compact,
     );
   }
 }

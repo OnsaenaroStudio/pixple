@@ -3,6 +3,7 @@ import '../widgets/bottom_nav_bar.dart';
 import '../theme/app_theme.dart';
 import '../services/community_api.dart';
 import '../models/community_models.dart';
+import '../widgets/menu.dart';
 import 'community_detail_screen.dart';
 import 'write_screen.dart';
 
@@ -69,11 +70,18 @@ class _CommunityScreenState extends State<CommunityScreen> {
     await _load(page: deleted == true ? 1 : _page);
   }
 
+  void _onDrawerTabSelected(NavTab tab) {
+    widget.onTabSelected(tab);
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      endDrawer: AppDrawer(
+        onTabSelected: _onDrawerTabSelected,
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -83,15 +91,23 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 children: [
                   Text(
                     '커뮤니티',
-                    style: textTheme.headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const Spacer(),
                   _WriteButton(onTap: _goWrite),
                   const SizedBox(width: 4),
-                  IconButton(
-                    icon: const Icon(Icons.grid_view_rounded, size: 28),
-                    onPressed: () {},
+                  Builder(
+                    builder: (context) => IconButton(
+                      icon: const Icon(
+                        Icons.grid_view_rounded,
+                        size: 28,
+                      ),
+                      onPressed: () {
+                        Scaffold.of(context).openEndDrawer();
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -248,59 +264,80 @@ class _PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Material(
-      color: AppColors.card,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (article.hashtags.isNotEmpty) ...[
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: article.hashtags
-                      .map((t) => Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '#$t',
-                              style: textTheme.bodySmall
-                                  ?.copyWith(color: AppColors.primary),
-                            ),
-                          ))
-                      .toList(),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (article.hashtags.isNotEmpty) ...[
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: article.hashtags
+                        .map((t) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryLight,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '#$t',
+                                style: textTheme.bodySmall?.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                Text(
+                  article.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  article.content,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
                 ),
                 const SizedBox(height: 10),
+                Text(
+                  _dateText(article.createdAt),
+                  style: textTheme.bodySmall
+                      ?.copyWith(color: AppColors.textSecondary),
+                ),
               ],
-              Text(
-                article.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: textTheme.titleMedium,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                article.content,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: textTheme.bodyMedium?.copyWith(height: 1.4),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                _dateText(article.createdAt),
-                style: textTheme.bodySmall
-                    ?.copyWith(color: AppColors.textSecondary),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -330,6 +367,7 @@ class _PostSkeletonCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
