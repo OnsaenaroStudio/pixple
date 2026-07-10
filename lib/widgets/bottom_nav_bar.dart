@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-enum NavTab { allergy, recipe, leftover, community }
+enum NavTab { allergy, recipe, leftover, community, allergy_info }
 
 class BottomNavBar extends StatelessWidget {
   final NavTab currentTab;
@@ -56,6 +56,12 @@ class BottomNavBar extends StatelessWidget {
             label: '커뮤',
             isActive: currentTab == NavTab.community,
             onTap: () => onTabSelected(NavTab.community),
+          ),
+          _NavButton(
+            icon: Icons.info_outlined,
+            label: '정보',
+            isActive: currentTab == NavTab.allergy_info,
+            onTap: () => onTabSelected(NavTab.allergy_info),
           ),
         ],
       ),

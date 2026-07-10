@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pixple/screens/allergen_info_screen.dart';
 import 'theme/app_theme.dart';
 import 'widgets/bottom_nav_bar.dart';
 import 'screens/camera_screens.dart';
@@ -56,6 +57,10 @@ class MainShell extends ConsumerWidget {
           currentTab: currentTab,
           onTabSelected: onTabSelected,
         ),
+      NavTab.allergy_info => AllergyInfoScreen(
+        currentTab: currentTab,
+        onTabSelected: onTabSelected,
+      )
     };
   }
 }
